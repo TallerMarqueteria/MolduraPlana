@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const tipoMolduraOptions = {
         "N/A": 0,
-        "Marfil": 4,
-        "Pino": 4,
-        "Flormorado": 7,
-        "Cedro": 7,
+        "Marfil": 5,
+        "Pino": 5,
+        "Flormorado": 8,
+        "Cedro": 8,
     };
 
     const acabadoOptions = {
@@ -24,16 +24,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const vidrioOptions = {
         "N/A": 0,
-        "Corriente": 1.62,
-        "Antirreflejo": 3.24,
+        "Corriente": 3.125,
+        "Antirreflejo": 6.25,
     };
 
     const bastidorOptions = {
         "N/A": 0,
-        "2x3": 25.86,
-        "2x4": 29.31,
-        "2x5": 32.76,
-        "2x6": 36.21,
+        "2x3": 25.86206897,
+        "2x4": 29.31034483,
+        "2x5": 32.75862069,
+        "2x6": 36.20689655,
     };
 
     const respaldoOptions = {
@@ -46,6 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "FoamPVC 6mm": 4.16666666666667,
         "FoamPVC 10mm": 8.33333333333333,
     };
+
+    const CC_Adhesivo = 1.1;
+    const CC_CintaDobleFaz = 7.5;
+    const CC_Pisavidrio = 7.5;
+
 
     // Obtener elementos del formulario
     const cotizacionForm = document.getElementById("cotizacion-form");
@@ -127,16 +132,17 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const per_bruto = 2 * (altoArte + anchoArte);
         const area_bruto = altoArte * anchoArte;
-        const per_total = 2 * (altoArte + anchoArte + 2 * anchoPaspartu);
-        const area_total = (altoArte + anchoPaspartu) * (anchoArte + anchoPaspartu);
+        const per_total = (altoArte + 2 * anchoPaspartu +anchoArte)*2;
+        const area_total = (altoArte + 2 * anchoPaspartu) * (anchoArte + 2 * anchoPaspartu);
     
-        const C_Moldura = altoMoldura * anchoMoldura * per_total * tipoMoldura + 1000 * (per_total / 300);
+        const C_Tira = altoMoldura*anchoMoldura*300*tipoMoldura+3000+1000;
+        const C_Moldura = (per_total/290)*C_Tira;
         const C_Acabado = per_total * acabado;
-        const C_Adhesivo = area_total * (adhesivo ? 1 : 0);
+        const C_Adhesivo = area_total * (adhesivo ? 1 : 0) * CC_Adhesivo;
         const C_Bastidor = per_total * bastidor;
-        const C_CDobleFaz = per_total * (cintaDobleFaz ? 1 : 0);
+        const C_CDobleFaz = per_total * (cintaDobleFaz ? 1 : 0) * CC_CintaDobleFaz;
         const C_Paspartu = area_total * tipoPaspartu;
-        const C_Pisavididrio = per_total * (pisavidrio ? 1 : 0);
+        const C_Pisavididrio = per_total * (pisavidrio ? 1 : 0) * CC_Pisavidrio;
         const C_Respaldo = area_total * respaldo;
         const C_Vidrio = area_total * vidrio;
         const C_Colgadera = 500;
@@ -144,7 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const C_Cinta = per_total * 2.5;
     
         const Costo_Bruto = C_Moldura + C_Acabado + C_Adhesivo + C_Bastidor + C_CDobleFaz + C_Paspartu + C_Pisavididrio + C_Respaldo + C_Vidrio + C_Colgadera + C_Embalaje + C_Cinta;
-        const Costo_Total = Costo_Bruto * F_Desperdicio;
+        const Costo_Desperdicio = Costo_Bruto * F_Desperdicio;
+        const Costo_Total = Costo_Desperdicio * F_Ganancia;
         const Precio = Math.round(Costo_Total / 500) * 500;
     
         // Formatear el precio final y el precio total con separadores de miles
