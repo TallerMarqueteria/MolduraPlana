@@ -1,152 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Enmarcaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <title>Calculadora de Cotizaciones</title>
 </head>
 <body>
-    <h1>Calculadora de Cotizaciones</h1>
-    <form id="cotizacion-form">
-        <!-- Primera fila -->
-        <div class="row">
-            <div class="column">
-                <label for="cantidad">Cantidad:</label>
-                <input type="number" id="cantidad" required>
-            </div>
-            <div class="column">
-                <label for="alto-arte">Alto del arte:</label>
-                <input type="number" id="alto-arte" required>
-            </div>
-            <div class="column">
-                <label for="ancho-arte">Ancho del arte:</label>
-                <input type="number" id="ancho-arte" required>
-            </div>
+    <header>
+        <h1>Cotizador de Enmarcaciones</h1>
+        <p>Uso exclusivo para Taller de Arte y Marquetería</p>
+    </header>
+    <main>
+        <div class="form-group">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo">
         </div>
-
-        <!-- Segunda fila -->
-        <div class="row">
-            <div class="column">
-                <label for="tipo-paspartu">Tipo de Paspartú:</label>
-                <select id="tipo-paspartu">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
-            <div class="column">
-                <label for="ancho-paspartu">Ancho del Paspartú:</label>
-                <input type="number" id="ancho-paspartu" required>
-            </div>
+        <div class="form-group">
+            <label for="observaciones">Observaciones:</label>
+            <textarea id="observaciones"></textarea>
         </div>
-
-        <!-- Tercera fila -->
-        <div class="row">
-            <div class="column">
-                <label for="tipo-moldura">Tipo de Moldura:</label>
-                <select id="tipo-moldura">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
-            <div class="column">
-                <label for="alto-moldura">Alto de la Moldura:</label>
-                <input type="number" id="alto-moldura" required>
-            </div>
-            <div class="column">
-                <label for="ancho-moldura">Ancho de la Moldura:</label>
-                <input type="number" id="ancho-moldura" required>
-            </div>
+        <div class="form-group">
+            <label for="altoArte">Alto del Arte (cm):</label>
+            <input type="number" id="altoArte" step="0.1">
         </div>
-
-        <!-- Cuarta fila -->
-        <div class="row">
-            <div class="column">
-                <label for="acabado">Acabado:</label>
-                <select id="acabado">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="anchoArte">Ancho del Arte (cm):</label>
+            <input type="number" id="anchoArte" step="0.1">
         </div>
-
-        <!-- Quinta fila -->
-        <div class="row">
-            <div class="column">
-                <label for="vidrio">Vidrio:</label>
-                <select id="vidrio">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="anchoPaspartu">Ancho del Paspartú (cm):</label>
+            <input type="number" id="anchoPaspartu" step="0.1">
         </div>
-
-        <!-- Sexta fila -->
-        <div class="row">
-            <div class="column">
-                <label for="bastidor">Bastidor:</label>
-                <select id="bastidor">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="materialMoldura">Material de la Moldura:</label>
+            <select id="materialMoldura"></select>
         </div>
-
-        <!-- Séptima fila -->
-        <div class="row">
-            <div class="column">
-                <label for="respaldo">Respaldo:</label>
-                <select id="respaldo">
-                    <!-- Opciones generadas desde JavaScript -->
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="dimensionMoldura">Dimensión de la Moldura:</label>
+            <select id="dimensionMoldura"></select>
         </div>
-
-        <!-- Octava fila -->
-        <div class="row">
-            <div class="column">
-                <label for="pisavidrio">Pisavidrio:</label>
-                <input type="checkbox" id="pisavidrio">
-            </div>
-            <div class="column">
-                <label for="cinta-doble-faz">Cinta Doble Faz:</label>
-                <input type="checkbox" id="cinta-doble-faz">
-            </div>
+        <div id="insumosList" class="form-group"></div>
+        <div id="insumosAList" class="form-group"></div>
+        <div class="form-group">
+            <label for="valorExtra">Valor Extra:</label>
+            <input type="number" id="valorExtra" step="0.1">
         </div>
-
-        <!-- Novena fila -->
-        <div class="row">
-            <div class="column">
-                <label for="adhesivo">Adhesivo:</label>
-                <input type="checkbox" id="adhesivo">
-            </div>
+        <div class="button-group">
+            <button id="calcularBtn">Calcular Cotización</button>
+            <button id="detalleBtn">Ver Detalle</button>
+            <button id="ocultarDetalleBtn" style="display:none;">Ocultar Detalle</button>
         </div>
-
-        <!-- Décima fila -->
-        <div class="row">
-            <div class="column">
-                <label for="otros">Otros:</label>
-                <input type="number" id="otros">
-            </div>
-            <div class="column">
-                <label for="adicionales">Adicionales:</label>
-                <input type="text" id="adicionales">
-            </div>
-        </div>
-
-        <!-- Undécima fila -->
-        <div class="row">
-            <div class="column">
-                <label for="resultado">Precio unitario:</label>
-                <span id="precio-unitario"></span>
-            </div>
-            <div class="column">
-                <label for="resultado">Precio total:</label>
-                <span id="precio-total"></span>
-            </div>
-        </div>
-
-        <!-- Duodécima fila (Botón) -->
-        <div class="row">
-            <button type="button" id="calcular-button">Calcular</button>
-        </div>
-    </form>
-    <div id="variables" style="display: none;"></div>
+        <div id="resultado"></div>
+    </main>
     <script src="script.js"></script>
 </body>
 </html>

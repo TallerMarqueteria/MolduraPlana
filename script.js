@@ -1,195 +1,181 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Crear objetos para las listas desplegables
-    const tipoPaspartuOptions = {
-        "N/A": 0,
-        "Importado": 3.65,
-        "Nacional": 1.43,
-    };
+document.addEventListener('DOMContentLoaded', () => {
+    const materialMolduraSelect = document.getElementById('materialMoldura');
+    const dimensionMolduraSelect = document.getElementById('dimensionMoldura');
+    const insumosListDiv = document.getElementById('insumosList');
+    const insumosAListDiv = document.getElementById('insumosAList');
+    const calcularBtn = document.getElementById('calcularBtn');
+    const detalleBtn = document.getElementById('detalleBtn');
+    const ocultarDetalleBtn = document.getElementById('ocultarDetalleBtn');
+    const resultadoDiv = document.getElementById('resultado');
 
-    const tipoMolduraOptions = {
-        "N/A": 0,
-        "Marfil": 5,
-        "Pino": 5,
-        "Flormorado": 8,
-        "Cedro": 8,
-    };
+    let moldurasData, insumosData, insumosAData;
 
-    const acabadoOptions = {
-        "N/A": 0,
-        "Al Duco (<5cm)": 70,
-        "Al Natural (<5cm)": 50,
-        "Al Duco (>5cm)": 100,
-        "Al Natural (>5cm)": 75,
-    };
+    // Cargar y procesar los archivos CSV
+    Promise.all([
+        fetch('molduras.csv').then(response => response.text()),
+        fetch('insumos.csv').then(response => response.text()),
+        fetch('insumosA.csv').then(response => response.text())
+    ]).then(([moldurasCsv, insumosCsv, insumosACsv]) => {
+        moldurasData = parseCsv(moldurasCsv);
+        insumosData = parseCsv(insumosCsv);
+        insumosAData = parseCsv(insumosACsv);
 
-    const vidrioOptions = {
-        "N/A": 0,
-        "Corriente": 3.125,
-        "Antirreflejo": 6.25,
-    };
+        populateSelects();
+        populateInsumos();
+    });
 
-    const bastidorOptions = {
-        "N/A": 0,
-        "2x3": 25.86206897,
-        "2x4": 29.31034483,
-        "2x5": 32.75862069,
-        "2x6": 36.20689655,
-    };
-
-    const respaldoOptions = {
-        "N/A": 0,
-        "MDF 3mm": 0.671862402579952,
-        "MDF 4mm": 1.11977067096659,
-        "Foamboard": 1.84027777777778,
-        "Alucobond": 8.66666666666667,
-        "FoamPVC 3mm": 2.08333333333333,
-        "FoamPVC 6mm": 4.16666666666667,
-        "FoamPVC 10mm": 8.33333333333333,
-    };
-
-    const CC_Adhesivo = 1.1;
-    const CC_CintaDobleFaz = 7.5;
-    const CC_Pisavidrio = 7.5;
-
-
-    // Obtener elementos del formulario
-    const cotizacionForm = document.getElementById("cotizacion-form");
-    const calcularButton = document.getElementById("calcular-button");
-    const precioUnitarioSpan = document.getElementById("precio-unitario");
-    const precioTotalSpan = document.getElementById("precio-total");
-    const variablesDiv = document.getElementById("variables");
-
-    // Rellenar las listas desplegables con opciones desde los objetos
-    const tipoPaspartuSelect = document.getElementById("tipo-paspartu");
-    for (const option in tipoPaspartuOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = tipoPaspartuOptions[option];
-        optionElement.text = option;
-        tipoPaspartuSelect.appendChild(optionElement);
+    function parseCsv(data) {
+        const [header, ...rows] = data.trim().split('\n').map(row => row.split(','));
+        return { header, rows };
     }
 
-    const tipoMolduraSelect = document.getElementById("tipo-moldura");
-    for (const option in tipoMolduraOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = tipoMolduraOptions[option];
-        optionElement.text = option;
-        tipoMolduraSelect.appendChild(optionElement);
+    function populateSelects() {
+        const materiales = moldurasData.header.slice(1); // Omitir "Dimensión"
+        materiales.forEach(material => {
+            const option = document.createElement('option');
+            option.value = material;
+            option.textContent = material;
+            materialMolduraSelect.appendChild(option);
+        });
+
+        const dimensiones = moldurasData.rows.map(row => row[0]);
+        dimensiones.forEach(dimension => {
+            const option = document.createElement('option');
+            option.value = dimension;
+            option.textContent = dimension;
+            dimensionMolduraSelect.appendChild(option);
+        });
     }
 
-    const acabadoSelect = document.getElementById("acabado");
-    for (const option in acabadoOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = acabadoOptions[option];
-        optionElement.text = option;
-        acabadoSelect.appendChild(optionElement);
+    function populateInsumos() {
+        const insumosGrouped = insumosData.rows.reduce((acc, row) => {
+            const [insumo, opcion] = row;
+            if (!acc[insumo]) acc[insumo] = [];
+            acc[insumo].push(opcion);
+            return acc;
+        }, {});
+
+        Object.keys(insumosGrouped).forEach(insumo => {
+            const label = document.createElement('label');
+            label.textContent = insumo;
+            const select = document.createElement('select');
+            insumosGrouped[insumo].forEach(opcion => {
+                const option = document.createElement('option');
+                option.value = opcion;
+                option.textContent = opcion;
+                select.appendChild(option);
+            });
+            insumosListDiv.appendChild(label);
+            insumosListDiv.appendChild(select);
+        });
+
+        insumosAData.rows.forEach(([insumo]) => {
+            const label = document.createElement('label');
+            label.textContent = insumo;
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = insumo;
+            insumosAListDiv.appendChild(label);
+            insumosAListDiv.appendChild(checkbox);
+        });
     }
 
-    const vidrioSelect = document.getElementById("vidrio");
-    for (const option in vidrioOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = vidrioOptions[option];
-        optionElement.text = option;
-        vidrioSelect.appendChild(optionElement);
+    function getSelectedOption(insumo) {
+        const selects = insumosListDiv.querySelectorAll('select');
+        for (const select of selects) {
+            const label = select.previousElementSibling;
+            if (label && label.textContent === insumo) {
+                return select.value;
+            }
+        }
+        return null;
     }
 
-    const bastidorSelect = document.getElementById("bastidor");
-    for (const option in bastidorOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = bastidorOptions[option];
-        optionElement.text = option;
-        bastidorSelect.appendChild(optionElement);
-    }
+    calcularBtn.addEventListener('click', () => {
+        const altoArte = parseFloat(document.getElementById('altoArte').value) || 0;
+        const anchoArte = parseFloat(document.getElementById('anchoArte').value) || 0;
+        const anchoPaspartu = parseFloat(document.getElementById('anchoPaspartu').value) || 0;
+        const materialMoldura = materialMolduraSelect.value;
+        const dimensionMoldura = dimensionMolduraSelect.value;
+        const valorExtra = parseFloat(document.getElementById('valorExtra').value) || 0;
 
-    const respaldoSelect = document.getElementById("respaldo");
-    for (const option in respaldoOptions) {
-        const optionElement = document.createElement("option");
-        optionElement.value = respaldoOptions[option];
-        optionElement.text = option;
-        respaldoSelect.appendChild(optionElement);
-    }
+        const altoReal = altoArte + 2 * anchoPaspartu;
+        const anchoReal = anchoArte + 2 * anchoPaspartu;
+        const perimetro = 2 * (altoReal + anchoReal);
+        const area = altoReal * anchoReal;
 
-    calcularButton.addEventListener("click", function () {
-        // Obtener valores del formulario y realizar cálculos
-        const cantidad = parseFloat(document.getElementById("cantidad").value);
-        const altoArte = parseFloat(document.getElementById("alto-arte").value);
-        const anchoArte = parseFloat(document.getElementById("ancho-arte").value);
-        const anchoPaspartu = parseFloat(document.getElementById("ancho-paspartu").value);
-        const altoMoldura = parseFloat(document.getElementById("alto-moldura").value);
-        const anchoMoldura = parseFloat(document.getElementById("ancho-moldura").value);
-        const pisavidrio = document.getElementById("pisavidrio").checked;
-        const cintaDobleFaz = document.getElementById("cinta-doble-faz").checked;
-        const adhesivo = document.getElementById("adhesivo").checked;
-    
-        const tipoPaspartu = parseFloat(tipoPaspartuSelect.value);
-        const tipoMoldura = parseFloat(tipoMolduraSelect.value);
-        const acabado = parseFloat(acabadoSelect.value);
-        const vidrio = parseFloat(vidrioSelect.value);
-        const bastidor = parseFloat(bastidorSelect.value);
-        const respaldo = parseFloat(respaldoSelect.value);
-    
-        const F_Ganancia = 2.4;
-        const F_Desperdicio = 1.1; // Factor de desperdicio ajustado a 1.1
-    
-        const per_bruto = 2 * (altoArte + anchoArte);
-        const area_bruto = altoArte * anchoArte;
-        const per_total = (altoArte + 2 * anchoPaspartu +anchoArte)*2;
-        const area_total = (altoArte + 2 * anchoPaspartu) * (anchoArte + 2 * anchoPaspartu);
-    
-        const C_Tira = altoMoldura*anchoMoldura*300*tipoMoldura+3000+1000;
-        const C_Moldura = (per_total/290)*C_Tira;
-        const C_Acabado = per_total * acabado;
-        const C_Adhesivo = area_total * (adhesivo ? 1 : 0) * CC_Adhesivo;
-        const C_Bastidor = per_total * bastidor;
-        const C_CDobleFaz = per_total * (cintaDobleFaz ? 1 : 0) * CC_CintaDobleFaz;
-        const C_Paspartu = area_total * tipoPaspartu;
-        const C_Pisavididrio = per_total * (pisavidrio ? 1 : 0) * CC_Pisavidrio;
-        const C_Respaldo = area_total * respaldo;
-        const C_Vidrio = area_total * vidrio;
-        const C_Colgadera = 500;
-        const C_Embalaje = area_total * 0.3;
-        const C_Cinta = per_total * 2.5;
-    
-        const Costo_Bruto = C_Moldura + C_Acabado + C_Adhesivo + C_Bastidor + C_CDobleFaz + C_Paspartu + C_Pisavididrio + C_Respaldo + C_Vidrio + C_Colgadera + C_Embalaje + C_Cinta;
-        const Costo_Desperdicio = Costo_Bruto * F_Desperdicio;
-        const Costo_Total = Costo_Desperdicio * F_Ganancia;
-        const Precio = Math.round(Costo_Total / 500) * 500;
-    
-        // Formatear el precio final y el precio total con separadores de miles
-        const precioFormateado = Precio.toLocaleString("es-ES");
-        const precioTotalFormateado = (Precio * cantidad).toLocaleString("es-ES");
-    
-        // Mostrar resultados
-        document.getElementById("precio-unitario").textContent = `Precio unitario: $ ${precioFormateado}`;
-        document.getElementById("precio-total").textContent = `Precio total: $ ${precioTotalFormateado}`;
-    
-        // Mostrar variables (opcional)
-        variablesDiv.innerHTML = `<pre>${JSON.stringify(
-            {
-                F_Ganancia,
-                F_Desperdicio,
-                per_bruto,
-                area_bruto,
-                per_total,
-                area_total,
-                C_Moldura,
-                C_Acabado,
-                C_Adhesivo,
-                C_Bastidor,
-                C_CDobleFaz,
-                C_Paspartu,
-                C_Pisavididrio,
-                C_Respaldo,
-                C_Vidrio,
-                C_Colgadera,
-                C_Embalaje,
-                C_Cinta,
-                Costo_Bruto,
-                Costo_Total,
-                Precio,
-            },
-            null,
-            2
-        )}</pre>`;
-        variablesDiv.style.display = "block";
-    });      
+        const molduraRow = moldurasData.rows.find(row => row[0] === dimensionMoldura);
+        const precioMoldura = parseFloat(molduraRow[moldurasData.header.indexOf(materialMoldura)]) * perimetro;
+
+        let precioInsumos = 0;
+        insumosData.rows.forEach(([insumo, opcion, lineal, precio]) => {
+            const selectedOpcion = getSelectedOption(insumo);
+            if (opcion === selectedOpcion) {
+                precioInsumos += parseFloat(precio) * (lineal === '1' ? perimetro : area);
+            }
+        });
+
+        let precioInsumosA = 0;
+        insumosAData.rows.forEach(([insumo, lineal, precio]) => {
+            const checked = insumosAListDiv.querySelector(`input[type="checkbox"][value="${insumo}"]`).checked;
+            if (checked) {
+                precioInsumosA += parseFloat(precio) * (lineal === '1' ? perimetro : lineal === '0' ? area : 1);
+            }
+        });
+
+        const precioTotal = precioMoldura + precioInsumos + precioInsumosA + valorExtra;
+        resultadoDiv.textContent = `Total: $${precioTotal.toFixed(2)}`;
+    });
+
+    detalleBtn.addEventListener('click', () => {
+        const altoArte = parseFloat(document.getElementById('altoArte').value) || 0;
+        const anchoArte = parseFloat(document.getElementById('anchoArte').value) || 0;
+        const anchoPaspartu = parseFloat(document.getElementById('anchoPaspartu').value) || 0;
+        const materialMoldura = materialMolduraSelect.value;
+        const dimensionMoldura = dimensionMolduraSelect.value;
+        const valorExtra = parseFloat(document.getElementById('valorExtra').value) || 0;
+
+        const altoReal = altoArte + 2 * anchoPaspartu;
+        const anchoReal = anchoArte + 2 * anchoPaspartu;
+        const perimetro = 2 * (altoReal + anchoReal);
+        const area = altoReal * anchoReal;
+
+        const molduraRow = moldurasData.rows.find(row => row[0] === dimensionMoldura);
+        const precioMoldura = parseFloat(molduraRow[moldurasData.header.indexOf(materialMoldura)]) * perimetro;
+
+        let precioInsumos = 0;
+        let detallesInsumos = '';
+        insumosData.rows.forEach(([insumo, opcion, lineal, precio]) => {
+            const selectedOpcion = getSelectedOption(insumo);
+            if (opcion === selectedOpcion) {
+                const costo = parseFloat(precio) * (lineal === '1' ? perimetro : area);
+                precioInsumos += costo;
+                detallesInsumos += `${insumo} - ${opcion}: $${costo.toFixed(2)}\n`;
+            }
+        });
+
+        let precioInsumosA = 0;
+        let detallesInsumosA = '';
+        insumosAData.rows.forEach(([insumo, lineal, precio]) => {
+            const checked = insumosAListDiv.querySelector(`input[type="checkbox"][value="${insumo}"]`).checked;
+            if (checked) {
+                const costo = parseFloat(precio) * (lineal === '1' ? perimetro : lineal === '0' ? area : 1);
+                precioInsumosA += costo;
+                detallesInsumosA += `${insumo}: $${costo.toFixed(2)}\n`;
+            }
+        });
+
+        const precioTotal = precioMoldura + precioInsumos + precioInsumosA + valorExtra;
+
+        resultadoDiv.innerText = `Detalle de la Cotización:\nPrecio Moldura: $${precioMoldura.toFixed(2)}\n${detallesInsumos}${detallesInsumosA}Valor Extra: $${valorExtra.toFixed(2)}\nTotal: $${precioTotal.toFixed(2)}`;
+        
+        detalleBtn.style.display = 'none';
+        ocultarDetalleBtn.style.display = 'inline';
+    });
+
+    ocultarDetalleBtn.addEventListener('click', () => {
+        resultadoDiv.textContent = '';
+        detalleBtn.style.display = 'inline';
+        ocultarDetalleBtn.style.display = 'none';
+    });
 });

@@ -1,0 +1,25 @@
+Insumo, Opción, Lineal, Precio
+Acabado,N/A,1,0
+Acabado,Al Duco (5cm),1,70
+Acabado,Al Natural (5cm),1,50
+Acabado,Al Duco (10cm),1,100
+Acabado,Al Natural (20cm),1,75
+Bastidor,N/A,1,0
+Bastidor,2x3,1,25.86206897
+Bastidor,2x4,1,29.31034483
+Bastidor,2x5,1,32.75862069
+Bastidor,2x6,1,36.20689655
+Paspartú,N/A,0,0
+Paspartú,Importado,0,3.645833333
+Paspartú,Nacional,0,1.428571429
+Respaldo,N/A,0,0
+Respaldo,MDF 3mm,0,1.254143151
+Respaldo,MDF 4mm,0,2.015587208
+Respaldo,Foamboard,0,3.125
+Respaldo,Alucobond,0,8.666666667
+Respaldo,FoamPVC 3mm,0,2.083333333
+Respaldo,FoamPVC 6mm,0,4.166666667
+Respaldo,FoamPVC 10mm,0,8.333333333
+Vidrio,Sin Vidrio,0,0
+Vidrio,Corriente,0,3.125
+Vidrio,Antirreflejo,0,6.25
