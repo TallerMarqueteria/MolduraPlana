@@ -8,10 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ocultarDetalleBtn = document.getElementById('ocultarDetalleBtn');
     const resultadoDiv = document.getElementById('resultado');
 
-    const factorDesperdicio = 1.1;
-    const factorGanancia = 2.5;
-
     let moldurasData, insumosData, insumosAData;
+    const factorDesperdicio = 1.1;  // Factor de desperdicio
+    const factorGanancia = 2.5;     // Factor de ganancia
 
     // Cargar y procesar los archivos CSV
     Promise.all([
@@ -101,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const materialMoldura = materialMolduraSelect.value;
         const dimensionMoldura = dimensionMolduraSelect.value;
         const valorExtra = parseFloat(document.getElementById('valorExtra').value) || 0;
-        const cantidad = parseInt(document.getElementById('cantidadEnmarcaciones').value) || 1;
+        const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
 
         const altoReal = altoArte + 2 * anchoPaspartu;
         const anchoReal = anchoArte + 2 * anchoPaspartu;
@@ -123,73 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
         insumosAData.rows.forEach(([insumo, lineal, precio]) => {
             const checked = insumosAListDiv.querySelector(`input[type="checkbox"][value="${insumo}"]`).checked;
             if (checked) {
-                precioInsumosA += parseFloat(precio);
+                precioInsumosA += parseFloat(precio) * (lineal === '1' ? perimetro : lineal === '0' ? area : 1);
             }
         });
 
-        const costoTotal = precioMoldura + precioInsumos + precioInsumosA + valorExtra;
-        const costoConDesperdicio = costoTotal * factorDesperdicio;
-        const precioFinalUnitario = costoConDesperdicio * factorGanancia;
-        const precioFinalTotal = precioFinalUnitario * cantidad;
+        const precioTotalUnitario = (precioMoldura + precioInsumos + precioInsumosA + valorExtra) * factorDesperdicio * factorGanancia;
+        const precioTotal = precioTotalUnitario * cantidad;
 
-        resultadoDiv.innerHTML = `
-            <p>Precio Unitario: $${precioFinalUnitario.toFixed(2)}</p>
-            <p>Precio Total (${cantidad} enmarcaciones): $${precioFinalTotal.toFixed(2)}</p>
-        `;
-    });
-
-    detalleBtn.addEventListener('click', () => {
-        const altoArte = parseFloat(document.getElementById('altoArte').value) || 0;
-        const anchoArte = parseFloat(document.getElementById('anchoArte').value) || 0;
-        const anchoPaspartu = parseFloat(document.getElementById('anchoPaspartu').value) || 0;
-        const materialMoldura = materialMolduraSelect.value;
-        const dimensionMoldura = dimensionMolduraSelect.value;
-        const valorExtra = parseFloat(document.getElementById('valorExtra').value) || 0;
-        const cantidad = parseInt(document.getElementById('cantidadEnmarcaciones').value) || 1;
-
-        const altoReal = altoArte + 2 * anchoPaspartu;
-        const anchoReal = anchoArte + 2 * anchoPaspartu;
-        const perimetro = 2 * (altoReal + anchoReal);
-        const area = altoReal * anchoReal;
-
-        const molduraRow = moldurasData.rows.find(row => row[0] === dimensionMoldura);
-        const precioMoldura = parseFloat(molduraRow[moldurasData.header.indexOf(materialMoldura)]) * perimetro;
-
-        let precioInsumos = 0;
-        insumosData.rows.forEach(([insumo, opcion, lineal, precio]) => {
-            const selectedOpcion = getSelectedOption(insumo);
-            if (opcion === selectedOpcion) {
-                precioInsumos += parseFloat(precio) * (lineal === '1' ? perimetro : area);
-            }
-        });
-
-        let precioInsumosA = 0;
-        insumosAData.rows.forEach(([insumo, lineal, precio]) => {
-            const checked = insumosAListDiv.querySelector(`input[type="checkbox"][value="${insumo}"]`).checked;
-            if (checked) {
-                precioInsumosA += parseFloat(precio);
-            }
-        });
-
-        const costoTotal = precioMoldura + precioInsumos + precioInsumosA + valorExtra;
-        const costoConDesperdicio = costoTotal * factorDesperdicio;
-        const precioFinalUnitario = costoConDesperdicio * factorGanancia;
-        const precioFinalTotal = precioFinalUnitario * cantidad;
-
-        resultadoDiv.innerHTML = `
-            <p>Costo Unitario (sin desperdicio): $${costoTotal.toFixed(2)}</p>
-            <p>Costo Unitario (con desperdicio): $${costoConDesperdicio.toFixed(2)}</p>
-            <p>Precio Unitario (con ganancia): $${precioFinalUnitario.toFixed(2)}</p>
-            <p>Precio Total (${cantidad} enmarcaciones): $${precioFinalTotal.toFixed(2)}</p>
-        `;
-
-        detalleBtn.style.display = 'none';
-        ocultarDetalleBtn.style.display = 'block';
-    });
-
-    ocultarDetalleBtn.addEventListener('click', () => {
-        resultadoDiv.innerHTML = '';
-        detalleBtn.style.display = 'block';
-        ocultarDetalleBtn.style.display = 'none';
+        resultadoDiv.innerHTML = `Precio Unitario: $${precioTotalUnitario.toFixed(2)}<br>Precio Total para ${cantidad} enmarcaciones: $${precioTotal.toFixed(2)}`;
     });
 });
