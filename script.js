@@ -94,6 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
+    // Formatear precios con separador de miles y sin decimales
+    function formatPrice(value) {
+        return `$${Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}`;
+    }
+
     calcularBtn.addEventListener('click', () => {
         const altoArte = parseFloat(document.getElementById('altoArte').value) || 0;
         const anchoArte = parseFloat(document.getElementById('anchoArte').value) || 0;
@@ -131,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const precioTotal = precioUnitario * cantidad;
 
         resultadoDiv.innerHTML = `
-            <p>Precio Unitario: $${precioUnitario.toFixed(2)}</p>
-            <p>Precio Total: $${precioTotal.toFixed(2)}</p>
+            <p><span>Precio Unitario:</span> ${formatPrice(precioUnitario)}</p>
+            <p><span>Precio Total:</span> ${formatPrice(precioTotal)}</p>
         `;
     });
 
@@ -160,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (opcion === selectedOpcion) {
                 const costo = parseFloat(precio) * (lineal === '1' ? perimetro : area);
                 precioInsumos += costo;
-                detallesInsumos += `${insumo} - ${opcion}: $${costo.toFixed(2)}\n`;
+                detallesInsumos += `${insumo} - ${opcion}: ${formatPrice(costo)}\n`;
             }
         });
 
@@ -171,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (checked) {
                 const costo = parseFloat(precio) * (lineal === '1' ? perimetro : lineal === '0' ? area : 1);
                 precioInsumosA += costo;
-                detallesInsumosA += `${insumo}: $${costo.toFixed(2)}\n`;
+                detallesInsumosA += `${insumo}: ${formatPrice(costo)}\n`;
             }
         });
 
@@ -180,16 +185,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         resultadoDiv.innerText = `
         Detalle de la Cotización:\n
-        Precio Moldura: $${precioMoldura.toFixed(2)}\n
+        Precio Moldura: ${formatPrice(precioMoldura)}\n
         ${detallesInsumos}
         ${detallesInsumosA}
-        Valor Extra: $${valorExtra.toFixed(2)}\n
-        Precio Unitario (sin desperdicio): $${(precioMoldura + precioInsumos + precioInsumosA + valorExtra).toFixed(2)}\n
-        Precio Unitario (con desperdicio): $${(precioMoldura + precioInsumos + precioInsumosA + valorExtra * factorDesperdicio).toFixed(2)}\n
-        Precio Unitario (con ganancia): $${precioUnitario.toFixed(2)}\n
-        Precio Total: $${precioTotal.toFixed(2)}
+        Valor Extra: ${formatPrice(valorExtra)}\n
+        Precio Unitario (sin desperdicio): ${formatPrice(precioMoldura + precioInsumos + precioInsumosA + valorExtra)}\n
+        Precio Unitario (con desperdicio): ${formatPrice((precioMoldura + precioInsumos + precioInsumosA + valorExtra) * factorDesperdicio)}\n
+        Precio Unitario (con ganancia): ${formatPrice(precioUnitario)}\n
+        Precio Total: ${formatPrice(precioTotal)}
         `;
-        
+
         detalleBtn.style.display = 'none';
         ocultarDetalleBtn.style.display = 'inline';
     });
